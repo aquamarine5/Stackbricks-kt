@@ -5,6 +5,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import io.sentry.Sentry
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.OkHttpClient
@@ -43,9 +44,11 @@ class StackbricksService(githubUser: String, githubRepo: String) {
 
                 override fun onResponse(call: Call, response: Response) {
                     if(response.isSuccessful){
+                        println(response.body!!.string())
                         val json=JSONObject(response.body!!.string())
-                        if(SimpleDateFormat("yyyy-MM-ddThh:mm:ssZ", Locale.ROOT).parse(json.getString("published_at"))!! >publishTime){
+                        if(SimpleDateFormat("yyyy-MM-dd hh:mm:ss", Locale.ROOT).parse(json.getString("published_at").replace("T"," ").replace("Z",""))!! >publishTime){
                             DownloadPackage(json.getJSONArray("assets").getJSONObject(0).getString("browser_download_url"),context)
+                            println(111)
                         }
 
                     }
@@ -64,6 +67,7 @@ class StackbricksService(githubUser: String, githubRepo: String) {
 
             override fun onResponse(call: Call, response: Response) {
                 if(response.isSuccessful){
+                    Sentry.captureMessage("Received response")
                     response.body?.byteStream()?.use{input->
                         FileOutputStream(File(context.filesDir,"app-release.apk")).use{output->
                             input.copyTo(output)

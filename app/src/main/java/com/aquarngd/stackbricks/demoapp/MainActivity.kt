@@ -100,7 +100,7 @@ fun Stackbricks() {
                 Text(tipsText)
                 Button(onClick = {
                     val service= StackbricksService("aquamarine5","Stackbricks")
-                    service.checkUpdate(SimpleDateFormat("yyyy-MM-ddThh:mm:ssZ", Locale.ROOT).parse("2021-03-04T08:21:12Z")!!, c)
+                    service.checkUpdate(SimpleDateFormat("yyyy-MM-dd hh:mm:ss", Locale.ROOT).parse("2021-03-04T08:21:12Z".replace("T"," ").replace("Z",""))!!, c)
                 }) {
                     Text(buttonText)
                 }
