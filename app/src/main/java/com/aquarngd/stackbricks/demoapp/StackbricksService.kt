@@ -44,9 +44,10 @@ class StackbricksService(githubUser: String, githubRepo: String) {
 
                 override fun onResponse(call: Call, response: Response) {
                     if(response.isSuccessful){
-                        println(response.body!!.string())
+                        //println(response.body!!.string())
                         val json=JSONObject(response.body!!.string())
                         if(SimpleDateFormat("yyyy-MM-dd hh:mm:ss", Locale.ROOT).parse(json.getString("published_at").replace("T"," ").replace("Z",""))!! >publishTime){
+                            println(json.getJSONArray("assets").getJSONObject(0).getString("browser_download_url"))
                             DownloadPackage(json.getJSONArray("assets").getJSONObject(0).getString("browser_download_url"),context)
                             println(111)
                         }
@@ -60,6 +61,7 @@ class StackbricksService(githubUser: String, githubRepo: String) {
         val request = Request.Builder()
             .url(url)
             .build()
+        println(url)
         okHttpClient.newCall(request).enqueue(object:Callback{
             override fun onFailure(call: Call, e: IOException) {
                 throw e
@@ -69,11 +71,14 @@ class StackbricksService(githubUser: String, githubRepo: String) {
                 if(response.isSuccessful){
                     Sentry.captureMessage("Received response")
                     response.body?.byteStream()?.use{input->
-                        FileOutputStream(File(context.filesDir,"app-release.apk")).use{output->
+                        var f=File(context.filesDir,"app-release.apk")
+                        FileOutputStream(f).use{output->
                             input.copyTo(output)
                         }
+                        println(f.absolutePath)
                     }
                 }
+
             }
         })
 
