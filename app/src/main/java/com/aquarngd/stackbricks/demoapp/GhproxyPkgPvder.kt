@@ -1,6 +1,8 @@
 package com.aquarngd.stackbricks.demoapp
 
 import android.content.Context
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.Request
@@ -12,34 +14,40 @@ import java.io.File
 import java.io.IOException
 import java.net.IDN
 
-class GhproxyPkgPvder:IPkgPvder {
-    override val ID:String= PkgPvderID
-    companion object{
-        const val PkgPvderID="stbkt.pkgpvder.ghproxy"
-    }
-    override fun DownloadPackage(context: Context,updateMessage: UpdateMessage,pkgPvderData: String): UpdatePackage {
-        val apkFile:File=File.createTempFile("stackbricks_apk_${updateMessage.version}",".apk",context.cacheDir)
+class GhproxyPkgPvder : IPkgPvder {
+    override val ID: String = PkgPvderID
 
-        val data=pkgPvderData.split("]]")
-        val url="https://ghproxy.com/github.com/${data[0]}/${data[1]}/releases/download/${data[2]}/${data[3]}"
-        val req=Request.Builder()
+    companion object {
+        const val PkgPvderID = "stbkt.pkgpvder.ghproxy"
+    }
+
+    override suspend fun DownloadPackage(
+        context: Context,
+        updateMessage: UpdateMessage,
+        pkgPvderData: String
+    ): UpdatePackage {
+        val apkFile: File = File.createTempFile(
+            "stackbricks_apk_${updateMessage.version}",
+            ".apk",
+            context.cacheDir
+        )
+
+        val data = pkgPvderData.split("]]")
+        val url =
+            "https://ghproxy.com/github.com/${data[0]}/${data[1]}/releases/download/${data[2]}/${data[3]}"
+        val req = Request.Builder()
             .url(url)
             .build()
-        StackbricksService.okHttpClient.newCall(req).enqueue(object: Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                throw e
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                if(response.body!=null){
+        return withContext(Dispatchers.IO) {
+            StackbricksService.okHttpClient.newCall(req).execute().apply {
+                if (body != null) {
                     apkFile.sink().buffer().apply {
-                        writeAll(response.body!!.source())
+                        writeAll(body!!.source())
                         close()
                     }
                 }
             }
-
-        })
-        return UpdatePackage(apkFile)
+            UpdatePackage(apkFile)
+        }
     }
 }

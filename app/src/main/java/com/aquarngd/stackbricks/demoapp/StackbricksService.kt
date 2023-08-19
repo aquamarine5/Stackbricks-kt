@@ -4,43 +4,54 @@ import android.content.Context
 import android.icu.util.VersionInfo
 import okhttp3.OkHttpClient
 
-class StackbricksService(val context: Context,val msgPvderId:String,val msgPvderData:String){
-    companion object{
-        val okHttpClient=OkHttpClient()
+class StackbricksService(val context: Context, val msgPvderId: String, val msgPvderData: String) {
+    companion object {
+        val okHttpClient = OkHttpClient()
     }
-    var updatePackage:UpdatePackage?=null
-    var updateMessage:UpdateMessage?=null
-    fun getMsgPvder():IMsgPvder?{
+
+    var mUpdatePackage: UpdatePackage? = null
+    var mUpdateMessage: UpdateMessage? = null
+    fun getMsgPvder(): IMsgPvder? {
         return MsgPvderManager.ParseFromId(msgPvderId)
     }
-    fun getPkgPvder(pkgPvderId:String):IPkgPvder?{
+
+    fun getPkgPvder(pkgPvderId: String): IPkgPvder? {
         return PkgPvderManager.ParseFromId(pkgPvderId)
     }
-    fun checkUpdate():Boolean{
-        val currentVersion= VersionInfo.getInstance(context.packageManager.getPackageInfo(context.packageName, 0).versionName)
-        return getUpdateMessage().version>currentVersion
+
+    suspend fun checkUpdate(): Boolean {
+        val currentVersion = VersionInfo.getInstance(
+            context.packageManager.getPackageInfo(
+                context.packageName,
+                0
+            ).versionName
+        )
+        return getUpdateMessage().version > currentVersion
     }
-    fun updateWhenAvailable():Boolean{
-        return if(checkUpdate()){
+
+    suspend fun updateWhenAvailable(): Boolean {
+        return if (checkUpdate()) {
             getUpdatePackage().InstallApk(context)
             true
-        }else false
+        } else false
     }
-    fun getUpdatePackage():UpdatePackage{
-        return if(updatePackage!=null)
-            updatePackage!!
-        else{
-            updatePackage=getPkgPvder(getUpdateMessage().pkgPvderId)!!
-                .DownloadPackage(context,getUpdateMessage(),getUpdateMessage().pkgPvderData)
-            updatePackage!!
+
+    suspend fun getUpdatePackage(): UpdatePackage {
+        return if (mUpdatePackage != null)
+            mUpdatePackage!!
+        else {
+            mUpdatePackage = getPkgPvder(getUpdateMessage().pkgPvderId)!!
+                .DownloadPackage(context, getUpdateMessage(), getUpdateMessage().pkgPvderData)
+            mUpdatePackage!!
         }
     }
-    fun getUpdateMessage():UpdateMessage{
-        return if(updateMessage!=null)
-            updateMessage!!
-        else{
-            updateMessage=getMsgPvder()!!.GetUpdateMessage(msgPvderData)
-            updateMessage!!
+
+    suspend fun getUpdateMessage(): UpdateMessage {
+        return if (mUpdateMessage != null)
+            mUpdateMessage!!
+        else {
+            mUpdateMessage = getMsgPvder()!!.GetUpdateMessage(msgPvderData)
+            mUpdateMessage!!
         }
     }
 }

@@ -1,6 +1,7 @@
 package com.aquarngd.stackbricks.demoapp
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -29,6 +30,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,6 +46,9 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
 import com.aquarngd.stackbricks.demoapp.ui.theme.StackbricksDemoTheme
 import io.sentry.Sentry
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.util.Date
@@ -52,6 +57,7 @@ import java.util.Locale
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Sentry.close()
         setContent {
             StackbricksDemoTheme {
                 // A surface container using the 'background' color from the theme
@@ -64,7 +70,6 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-        Sentry.captureMessage("Successful")
     }
 }
 
@@ -77,8 +82,9 @@ fun ShowLogos() {
 fun Stackbricks() {
     var buttonText by remember { mutableStateOf("检查更新") }
     var tipsText by remember { mutableStateOf("检查更新") }
-    var c= LocalContext.current
-    val stackbricksService= StackbricksService(c,WeiboCmtsMsgPvder.MsgPvderID,"4936409558027888")
+    val coroutineScope= rememberCoroutineScope()
+    var c = LocalContext.current
+    val stackbricksService = StackbricksService(c, WeiboCmtsMsgPvder.MsgPvderID, "4936409558027888")
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -100,7 +106,11 @@ fun Stackbricks() {
             Column(modifier = Modifier.padding(15.dp)) {
                 Text(tipsText)
                 Button(onClick = {
-                    stackbricksService.updateWhenAvailable()
+                    coroutineScope.launch {
+
+                        Log.d("MainActivity", stackbricksService.updateWhenAvailable().toString())
+
+                    }
                 }) {
                     Text(buttonText)
                 }
