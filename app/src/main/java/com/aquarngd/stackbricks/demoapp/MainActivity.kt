@@ -78,6 +78,7 @@ fun Stackbricks() {
     var buttonText by remember { mutableStateOf("检查更新") }
     var tipsText by remember { mutableStateOf("检查更新") }
     var c= LocalContext.current
+    val stackbricksService= StackbricksService(c,WeiboCmtsMsgPvder.MsgPvderID,"4936409558027888")
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -99,8 +100,7 @@ fun Stackbricks() {
             Column(modifier = Modifier.padding(15.dp)) {
                 Text(tipsText)
                 Button(onClick = {
-                    val service= StackbricksService("aquamarine5","Stackbricks")
-                    service.checkUpdate(SimpleDateFormat("yyyy-MM-dd hh:mm:ss", Locale.ROOT).parse("2021-03-04T08:21:12Z".replace("T"," ").replace("Z",""))!!, c)
+                    stackbricksService.updateWhenAvailable()
                 }) {
                     Text(buttonText)
                 }
