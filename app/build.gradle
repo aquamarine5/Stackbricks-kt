@@ -10,8 +10,8 @@ android {
         applicationId "com.aquarngd.stackbricks.demoapp"
         minSdk 26
         targetSdk 34
-        versionCode 1010004
-        versionName "0.1.0.4"
+        versionCode 1010005
+        versionName "1.1.0.5"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

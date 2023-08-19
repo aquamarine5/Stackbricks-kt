@@ -1,3 +1,11 @@
 <resources>
-    <string name="app_name">Stackbricks Demo</string>
+    <string name="app_name" translatable="false">Stackbricks Demo</string>
+    <string name="tips_newversion">有最新版本</string>
+    <string name="tips_newest">当前已经是最新版本</string>
+    <string name="tips_checkupdate">点击检查更新</string>
+    <string name="tips_programerror">程序出现错误</string>
+    <string name="tips_networkerror">网络已断开</string>
+    <string name="tips_clickinstall">点击以安装新版本</string>
+    <string name="tips_downloading">下载中...</string>
+    <string name="tips_checking">检查更新中</string>
 </resources>

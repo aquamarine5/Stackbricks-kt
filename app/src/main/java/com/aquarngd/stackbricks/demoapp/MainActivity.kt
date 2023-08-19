@@ -18,6 +18,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -46,6 +48,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
 import com.aquarngd.stackbricks.demoapp.ui.theme.StackbricksDemoTheme
 import io.sentry.Sentry
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -53,6 +56,7 @@ import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.util.Date
 import java.util.Locale
+import kotlin.coroutines.EmptyCoroutineContext
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -77,70 +81,65 @@ class MainActivity : ComponentActivity() {
 fun ShowLogos() {
 
 }
-
 @Composable
-fun Stackbricks() {
+fun Stackbricks(){
     var buttonText by remember { mutableStateOf("检查更新") }
     var tipsText by remember { mutableStateOf("检查更新") }
     val coroutineScope= rememberCoroutineScope()
     var c = LocalContext.current
     val stackbricksService = StackbricksService(c, WeiboCmtsMsgPvder.MsgPvderID, "4936409558027888")
-    Card(
+    Button(
+        onClick = {},
+        colors= ButtonDefaults.buttonColors(containerColor = Color(81,196,211)),
         modifier = Modifier
             .fillMaxWidth()
             .padding(10.dp),
         shape = RoundedCornerShape(36.dp)
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center,
-            modifier = Modifier.padding(15.dp)
+        Column(
+            horizontalAlignment = Alignment.Start
         ) {
-            Icon(
-                ContextCompat.getDrawable(LocalContext.current, R.drawable.stackbricks_logo)!!
-                    .toBitmap().asImageBitmap(),
-                contentDescription = "Stackbricks Logo",
-                tint = Color.Unspecified,
-                modifier = Modifier.size(100.dp)
-            )
-            Column(modifier = Modifier.padding(15.dp)) {
-                Text(tipsText)
-                Button(onClick = {
-                    coroutineScope.launch {
-
-                        Log.d("MainActivity", stackbricksService.updateWhenAvailable().toString())
-
-                    }
-                }) {
-                    Text(buttonText)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier.padding(0.dp,15.dp)
+            ) {
+                Icon(
+                    ContextCompat.getDrawable(LocalContext.current, R.drawable.stackbricks_logo)!!
+                        .toBitmap().asImageBitmap(),
+                    contentDescription = "Stackbricks Logo",
+                    tint = Color.Unspecified,
+                    modifier = Modifier.size(100.dp)
+                )
+                Column(modifier = Modifier.padding(15.dp)) {
+                    Text(tipsText)
                 }
             }
+            Image(
+                painter = painterResource(id = R.drawable.developedby_rngdcreation),
+                contentDescription = "Developed by RenegadeCreation",
+                alignment = Alignment.BottomEnd,
+                modifier = Modifier
+                    .scale(1f)
+                    .padding(20.dp, 5.dp, 0.dp, 5.dp)
+            )
         }
-        Image(
-            painter = painterResource(id = R.drawable.developedby_rngdcreation),
-            contentDescription = "Developed by RenegadeCreation",
-            alignment = Alignment.BottomEnd,
-            modifier = Modifier
-                .scale(1f)
-                .padding(20.dp, 5.dp, 0.dp, 5.dp)
-        )
+
     }
 }
 
 @Composable
 fun StackbricksDemo() {
     Column {
-        Stackbricks()
+        StackbricksCompose( rememberCoroutineScope(),LocalContext.current, WeiboCmtsMsgPvder.MsgPvderID, "4936409558027888").DrawCompose()
         ShowLogos()
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun StackbricksPreview() {
     StackbricksDemoTheme {
-        TopAppBar(title = { Text("Stackbricks Demo") })
         StackbricksDemo()
     }
 }
