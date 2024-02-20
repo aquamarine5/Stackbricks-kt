@@ -1,5 +1,6 @@
 pluginManagement {
     repositories {
+        maven{url 'http://maven.aliyun.com/nexus/content/groups/public/';allowInsecureProtocol = true}
         google()
         mavenCentral()
         gradlePluginPortal()
@@ -12,5 +13,6 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "Stackbricks Demo"
+
+rootProject.name = "Stackbricks-kt"
 include ':app'
