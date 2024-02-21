@@ -3,25 +3,26 @@ package org.aquarngd.stackbricks
 import android.content.Context
 import android.content.Intent
 import androidx.core.content.FileProvider
-import org.aquarngd.stackbricks.GhproxyPkgPvder
-import org.aquarngd.stackbricks.UpdateMessage
+import org.aquarngd.stackbricks.pkgpvder.GhproxyPkgPvder
+import org.aquarngd.stackbricks.pkgpvder.Huang1111PkgPvder
 import java.io.File
 
 
 class PkgPvderManager {
     companion object {
         private val MsgPvderMatchDict = mapOf<String, IPkgPvder>(
-            GhproxyPkgPvder.PkgPvderID to GhproxyPkgPvder()
+            GhproxyPkgPvder.PkgPvderID to GhproxyPkgPvder(),
+            Huang1111PkgPvder.PkgPvderID to Huang1111PkgPvder()
         )
 
-        fun ParseFromId(msgPvderId: String): IPkgPvder? {
+        fun parseFromId(msgPvderId: String): IPkgPvder? {
             return MsgPvderMatchDict[msgPvderId]
         }
     }
 }
 
 data class UpdatePackage(val apkFile: File) {
-    fun InstallApk(context: Context) {
+    fun installApk(context: Context) {
         Intent(Intent.ACTION_VIEW).apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
@@ -38,10 +39,10 @@ data class UpdatePackage(val apkFile: File) {
 }
 
 interface IPkgPvder {
-    val ID: String
-    suspend fun DownloadPackage(
+    val id: String
+    suspend fun downloadPackage(
         context: Context,
         updateMessage: UpdateMessage,
         pkgPvderData: String
-    ): UpdatePackage
+    ): ExceptionalResult<UpdatePackage>
 }

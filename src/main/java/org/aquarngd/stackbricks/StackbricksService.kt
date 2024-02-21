@@ -3,58 +3,88 @@ package org.aquarngd.stackbricks
 import android.content.Context
 import android.icu.util.VersionInfo
 import okhttp3.OkHttpClient
-import org.aquarngd.stackbricks.IMsgPvder
-import org.aquarngd.stackbricks.MsgPvderManager
-import org.aquarngd.stackbricks.UpdateMessage
 
 class StackbricksService(val context: Context, val msgPvderId: String, val msgPvderData: String) {
     companion object {
         val okHttpClient = OkHttpClient()
     }
 
-    var mUpdatePackage: UpdatePackage? = null
-    var mUpdateMessage: UpdateMessage? = null
+    var mUpdatePackage: ExceptionalResult<UpdatePackage> = ExceptionalResult.fail(
+        NullPointerException("Should not use this value"),
+        "Should not use this value"
+    )
+    var mUpdateMessage: ExceptionalResult<UpdateMessage> = ExceptionalResult.fail(
+        NullPointerException("Should not use this value"),
+        "Should not use this value"
+    )
+
     fun getMsgPvder(): IMsgPvder? {
-        return MsgPvderManager.ParseFromId(msgPvderId)
+        return MsgPvderManager.parseFromId(msgPvderId)
     }
 
     fun getPkgPvder(pkgPvderId: String): IPkgPvder? {
-        return PkgPvderManager.ParseFromId(pkgPvderId)
+        return PkgPvderManager.parseFromId(pkgPvderId)
     }
 
-    suspend fun checkUpdate(): Boolean {
+    suspend fun checkUpdate(): ExceptionalResult<Boolean> {
         val currentVersion = VersionInfo.getInstance(
             context.packageManager.getPackageInfo(
                 context.packageName,
                 0
             ).versionName
         )
-        return getUpdateMessage().version > currentVersion
-    }
-
-    suspend fun updateWhenAvailable(): Boolean {
-        return if (checkUpdate()) {
-            getUpdatePackage().InstallApk(context)
-            true
-        } else false
-    }
-
-    suspend fun getUpdatePackage(): UpdatePackage {
-        return if (mUpdatePackage != null)
-            mUpdatePackage!!
-        else {
-            mUpdatePackage = getPkgPvder(getUpdateMessage().pkgPvderId)!!
-                .DownloadPackage(context, getUpdateMessage(), getUpdateMessage().pkgPvderData)
-            mUpdatePackage!!
+        val updateMessage = getUpdateMessage()
+        return if (updateMessage.isSuccess) {
+            ExceptionalResult.success(updateMessage.result!!.version > currentVersion)
+        } else {
+            ExceptionalResult.fail(updateMessage)
         }
     }
 
-    suspend fun getUpdateMessage(): UpdateMessage {
-        return if (mUpdateMessage != null)
-            mUpdateMessage!!
+    suspend fun updateWhenAvailable(): ExceptionalResult<StackbricksStatus> {
+        val checkResult = checkUpdate()
+        return if (checkResult.isSuccess) {
+            if (checkResult.result!!) {
+                val updatePackage = getUpdatePackage()
+                if (updatePackage.isSuccess) {
+                    updatePackage.result!!.installApk(context)
+                    ExceptionalResult.success(StackbricksStatus.STATUS_NEWEST)
+                } else {
+                    ExceptionalResult.fail(updatePackage)
+                }
+            } else ExceptionalResult.success(StackbricksStatus.STATUS_NEWEST)
+        } else {
+            ExceptionalResult.fail(checkResult)
+        }
+
+    }
+
+    suspend fun getUpdatePackage(): ExceptionalResult<UpdatePackage> {
+        return if (mUpdatePackage.isSuccess)
+            mUpdatePackage
         else {
-            mUpdateMessage = getMsgPvder()!!.GetUpdateMessage(msgPvderData)
-            mUpdateMessage!!
+            val updateMessage = getUpdateMessage()
+            if (updateMessage.isSuccess) {
+
+                mUpdatePackage = getPkgPvder(updateMessage.result!!.pkgPvderId)!!
+                    .downloadPackage(
+                        context,
+                        updateMessage.result,
+                        updateMessage.result.pkgPvderData
+                    )
+                mUpdatePackage
+            } else {
+                ExceptionalResult.fail(updateMessage)
+            }
+        }
+    }
+
+    suspend fun getUpdateMessage(): ExceptionalResult<UpdateMessage> {
+        return if (mUpdateMessage.isSuccess)
+            mUpdateMessage
+        else {
+            mUpdateMessage = getMsgPvder()!!.getUpdateMessage(msgPvderData)
+            mUpdateMessage
         }
     }
 }

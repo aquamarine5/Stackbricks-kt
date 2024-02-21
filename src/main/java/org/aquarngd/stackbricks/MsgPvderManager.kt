@@ -1,6 +1,7 @@
 package org.aquarngd.stackbricks
 
 import android.icu.util.VersionInfo
+import org.aquarngd.stackbricks.msgpvder.WeiboCommentsMsgPvder
 
 class MsgPvderManager {
     companion object {
@@ -8,7 +9,7 @@ class MsgPvderManager {
             WeiboCommentsMsgPvder.MsgPvderID to WeiboCommentsMsgPvder()
         )
 
-        fun ParseFromId(msgPvderId: String): IMsgPvder? {
+        fun parseFromId(msgPvderId: String): IMsgPvder? {
             return MsgPvderMatchDict[msgPvderId]
         }
     }
@@ -21,6 +22,6 @@ data class UpdateMessage(
 )
 
 interface IMsgPvder {
-    suspend fun GetUpdateMessage(msgPvderData: String): UpdateMessage
-    val ID: String
+    suspend fun getUpdateMessage(msgPvderData: String): ExceptionalResult<UpdateMessage>
+    val id: String
 }

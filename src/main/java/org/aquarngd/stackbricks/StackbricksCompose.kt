@@ -20,19 +20,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
-import androidx.core.graphics.drawable.toBitmap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import org.aquarngd.stackbricks.msgpvder.WeiboCommentsMsgPvder
 
 class StackbricksCompose(
     private val coroutineScope: CoroutineScope,
@@ -74,12 +71,26 @@ class StackbricksCompose(
 
     var buttonColor by mutableStateOf(buttonColorMatchMap[mStatus]!!)
     var tipsText by mutableStateOf(tipsTextMatchMap[mStatus]!!)
+    private fun onException(exception: Exception?, helpText: String?) {
+        buttonColor = buttonColorMatchMap[StackbricksStatus.STATUS_ERROR]!!
+        tipsText = helpText + exception?.message
+    }
+
+    private fun onException(exceptionalResponse: ExceptionalResponse) {
+        buttonColor = buttonColorMatchMap[StackbricksStatus.STATUS_ERROR]!!
+        tipsText = exceptionalResponse.helpText + exceptionalResponse.exception?.message
+    }
+
     private suspend fun onClickEvent() {
         when (mStatus) {
             StackbricksStatus.STATUS_START, StackbricksStatus.STATUS_NEWEST -> {
                 status = StackbricksStatus.STATUS_CHECKING
                 val result = stackbricksService.checkUpdate()
-                status = if (result) {
+                if (!result.isSuccess) {
+                    onException(result.exception, result.helpText)
+                    return
+                }
+                status = if (result.result!!) {
                     StackbricksStatus.STATUS_NEWVERSION
                 } else {
                     StackbricksStatus.STATUS_NEWEST
@@ -93,7 +104,12 @@ class StackbricksCompose(
             }
 
             StackbricksStatus.STATUS_CLICKINSTALL -> {
-                stackbricksService.getUpdatePackage().InstallApk(context)
+                val updatePackage = stackbricksService.getUpdatePackage()
+                if (updatePackage.isSuccess) {
+                    updatePackage.result!!.installApk(context)
+                } else {
+                    onException(updatePackage.exception, updatePackage.helpText)
+                }
                 status = StackbricksStatus.STATUS_NEWEST
             }
 
@@ -103,7 +119,6 @@ class StackbricksCompose(
 
     @Composable
     fun DrawCompose() {
-
         Button(
             onClick = {
                 coroutineScope.launch {
