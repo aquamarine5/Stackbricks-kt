@@ -157,7 +157,7 @@ class StackbricksCompose(
                         )
                     )
                 }
-                Column {
+                Row {
                     Text(
                         "OnceShot 的更新服务由 Stackbricks-kt 提供 (@aquamarine5, @海蓝色的咕咕鸽)",
                         fontSize = TextUnit(
