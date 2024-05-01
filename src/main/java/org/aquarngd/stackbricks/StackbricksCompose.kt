@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.aquarngd.stackbricks.msgpvder.WeiboCommentsMsgPvder
+import kotlin.reflect.typeOf
 
 class StackbricksCompose(
     private val coroutineScope: CoroutineScope,
@@ -73,7 +74,7 @@ class StackbricksCompose(
     var tipsText by mutableStateOf(tipsTextMatchMap[mStatus]!!)
     private fun onException(exception: Exception?, helpText: String?) {
         buttonColor = buttonColorMatchMap[StackbricksStatus.STATUS_ERROR]!!
-        tipsText = helpText + exception?.message
+        tipsText = helpText + exception?.toString()
     }
 
     private fun onException(exceptionalResponse: ExceptionalResponse) {
