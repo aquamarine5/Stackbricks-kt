@@ -163,7 +163,7 @@ class StackbricksCompose(
                     Text(
                         "OnceShot 的更新服务由 Stackbricks-kt 提供 (@aquamarine5, @海蓝色的咕咕鸽)",
                         fontSize = 12.sp,
-                        modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 5.dp).width(40.dp)
+                        modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 5.dp).width(190.dp)
                     )
                     Image(
                         painter = painterResource(id = R.drawable.developedby_rngdcreation),
