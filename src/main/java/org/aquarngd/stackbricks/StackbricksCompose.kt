@@ -48,7 +48,7 @@ class StackbricksCompose(
         StackbricksStatus.STATUS_ERROR to Color(238, 72, 102),
         StackbricksStatus.STATUS_DOWNLOADING to Color(248, 223, 112),
         StackbricksStatus.STATUS_NEWVERSION to Color(248, 223, 112),
-        StackbricksStatus.STATUS_NEWEST to Color(127, 255, 212)
+        StackbricksStatus.STATUS_NEWEST to Color(69,210,154)
     )
     private val tipsTextMatchMap = mapOf(
         StackbricksStatus.STATUS_NEWEST to context.getString(R.string.stackbricks_tips_newest),

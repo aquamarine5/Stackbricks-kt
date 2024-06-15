@@ -45,6 +45,6 @@ class GithubApiMsgPvder:IMsgPvder {
         get() = MsgPvderID
 
     companion object {
-        const val MsgPvderID = "stbkt.msgpvder.weibocmts"
+        const val MsgPvderID = "stbkt.msgpvder.githubapi"
     }
 }

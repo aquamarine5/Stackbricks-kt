@@ -46,7 +46,5 @@ class WeiboCommentsMsgPvder : IMsgPvder {
         } catch (ex: Exception) {
             return ExceptionalResult.fail(ex, "")
         }
-
-
     }
 }
