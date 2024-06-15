@@ -1,12 +1,14 @@
 package org.aquarngd.stackbricks
 
 import android.icu.util.VersionInfo
+import org.aquarngd.stackbricks.msgpvder.GithubApiMsgPvder
 import org.aquarngd.stackbricks.msgpvder.WeiboCommentsMsgPvder
 
 class MsgPvderManager {
     companion object {
-        private val MsgPvderMatchDict = mapOf<String, IMsgPvder>(
-            WeiboCommentsMsgPvder.MsgPvderID to WeiboCommentsMsgPvder()
+        private val MsgPvderMatchDict = mapOf(
+            WeiboCommentsMsgPvder.MsgPvderID to WeiboCommentsMsgPvder(),
+            GithubApiMsgPvder.MsgPvderID to GithubApiMsgPvder()
         )
 
         fun parseFromId(msgPvderId: String): IMsgPvder? {
